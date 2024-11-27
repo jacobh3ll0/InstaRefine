@@ -1,4 +1,4 @@
-### Android Image Editor - “InstaRefine”
+# Android Image Editor - “InstaRefine”
 
 ## Team
 Eisha Rizvi (100782325) - eisha.rizvi@ontariotechu.net
@@ -7,17 +7,17 @@ Jacob Rempel (100823181) - jacob.rempel@ontariotechu.net
 ## Synopsis
 This project will create an easy-to-use mobile app for Android that allows users to edit, enhance, and manipulate images. The app will be built using Dart and Flutter and will include features like brightness adjustment, contrast control, cropping, etc. 
 Key Features
-# Brightness Adjustment: 
+### Brightness Adjustment: 
 Users can increase or decrease brightness using a simple slider.
-# Contrast Control:
+### Contrast Control:
 Users can modify contrast to make the image sharper or softer.
-# Cropping: 
+### Cropping: 
 A cropping tool will allow users to cut and resize specific parts of the image.
 # Filters and Effects: 
 Basic filters like grayscale, sepia, and blur will be available for users to apply.
-# Undo and Redo: 
+### Undo and Redo: 
 Users can undo or redo recent edits for flexibility.
-# Save and Export: 
+### Save and Export: 
 Edited images can be saved in formats like JPEG or PNG.
 
 ## Technologies
