@@ -13,7 +13,7 @@ Users can increase or decrease brightness using a simple slider.
 Users can modify contrast to make the image sharper or softer.
 ### Cropping: 
 A cropping tool will allow users to cut and resize specific parts of the image.
-# Filters and Effects: 
+### Filters and Effects: 
 Basic filters like grayscale, sepia, and blur will be available for users to apply.
 ### Undo and Redo: 
 Users can undo or redo recent edits for flexibility.
