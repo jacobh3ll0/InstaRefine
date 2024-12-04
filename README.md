@@ -22,7 +22,6 @@
 
 - **Flutter**: The app is built using the Flutter framework for a smooth and responsive cross-platform experience.
 - **Image Picker**: Used to pick images from the gallery for editing.
-- **Image Cropper Plus**: Allows users to crop images to specific dimensions (if implemented as part of the project).
 - **Image Processing Functions**: Custom-built functions for image enhancements such as brightness, contrast, and filters.
 - **Dart**: The language used for the logic and backend processing of the app.
 
@@ -38,7 +37,7 @@ The home screen is the entry point of the app, where users can:
 Once an image is loaded, users are taken to the Edit screen, where they can:
 - Apply filters (e.g., grayscale, sepia, etc.).
 - Adjust brightness and contrast.
-- Crop the image (if implemented).
+- Crop the image.
 - Undo/redo changes made during the editing process.
 
 ### About Screen
