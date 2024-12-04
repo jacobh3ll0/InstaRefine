@@ -1,7 +1,8 @@
 # Android Image Editor - “InstaRefine”
 
+![logo](https://github.com/user-attachments/assets/b59991d1-224e-44fc-a8be-01d01a6f5041)
+
 **InstaRefine** is a mobile image editing application developed for Android that allows users to enhance and manipulate their images using various tools like brightness adjustment, contrast enhancement, filters (including grayscale, sepia, and more), and image cropping. It provides a simple and intuitive interface for users to refine their images quickly and efficiently.
-![logo](https://github.com/user-attachments/assets/411925cf-c2a8-4b83-9d63-a7ac15f21e4b)
 
 ## Developers
 - Eisha Rizvi (100782325) - eisha.rizvi@ontariotechu.net
