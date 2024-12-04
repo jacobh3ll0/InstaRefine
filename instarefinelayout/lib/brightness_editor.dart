@@ -3,92 +3,130 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'dart:async';
 
-class BrightnessEditor extends StatefulWidget {
+class BrightnessScreen extends StatefulWidget {
   final String imagePath;
 
-  const BrightnessEditor({super.key, required this.imagePath});
+  BrightnessScreen({required this.imagePath});
 
   @override
-  _BrightnessEditorState createState() => _BrightnessEditorState();
+  _BrightnessScreenState createState() => _BrightnessScreenState();
 }
 
-class _BrightnessEditorState extends State<BrightnessEditor> {
-  double _brightness = 0.0;
-  File? _processedImage;
+class _BrightnessScreenState extends State<BrightnessScreen> {
+  late img.Image originalImage;
+  img.Image? editedImage;
+  double brightnessValue = 0.0;
+  Timer? debounceTimer; // Timer for debouncing
 
-  Future<void> _adjustBrightness() async {
-    try {
-      final imageBytes = await File(widget.imagePath).readAsBytes();
+  @override
+  void initState() {
+    super.initState();
+    _loadImage();
+  }
 
-      final response = await http.post(
-        Uri.parse('YOUR_API_URL_HERE/adjustBrightness'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'image': base64Encode(imageBytes),
-          'brightness': _brightness,
-        }),
-      );
+  /// Load the image using the `image` package
+  Future<void> _loadImage() async {
+    final imageBytes = await File(widget.imagePath).readAsBytes();
+    setState(() {
+      originalImage = img.decodeImage(imageBytes)!;
+      editedImage = originalImage.clone();
+    });
+  }
 
-      if (response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        final processedImagePath = result['imagePath'];
-        setState(() {
-          _processedImage = File(processedImagePath);
-        });
-      } else {
-        print('Error: ${response.statusCode}');
+  /// Adjust the brightness of the image
+  img.Image _adjustBrightness(img.Image image, double value) {
+    final adjustedImage = img.Image.from(image);
+    for (int y = 0; y < adjustedImage.height; y++) {
+      for (int x = 0; x < adjustedImage.width; x++) {
+        final pixel = adjustedImage.getPixel(x, y);
+
+        // Extract RGB channels
+        final r = img.getRed(pixel);
+        final g = img.getGreen(pixel);
+        final b = img.getBlue(pixel);
+
+        // Adjust brightness (value can be positive or negative)
+        final adjustedR = (r + value).clamp(0, 255).toInt();
+        final adjustedG = (g + value).clamp(0, 255).toInt();
+        final adjustedB = (b + value).clamp(0, 255).toInt();
+
+        adjustedImage.setPixel(x, y, img.getColor(adjustedR, adjustedG, adjustedB));
       }
-    } catch (e) {
-      print('Error adjusting brightness: $e');
     }
+    return adjustedImage;
+  }
+
+  /// Save the modified image to a temporary file
+  Future<void> _saveImage() async {
+    if (editedImage == null) return;
+
+    final directory = await getTemporaryDirectory();
+    final newPath = '${directory.path}/edited_image_${DateTime.now().millisecondsSinceEpoch}.png';
+
+    // Save the edited image
+    final editedImageBytes = img.encodePng(editedImage!);
+    final file = File(newPath);
+    await file.writeAsBytes(editedImageBytes);
+
+    // Return to the previous screen with the new image path
+    Navigator.pop(context, newPath);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFE8E6F5),
       appBar: AppBar(
-        title: const Text("Brightness Adjust"),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context); // Go back to the previous screen
-          },
-        ),
+        title: const Text('Adjust Brightness'),
+        backgroundColor: const Color(0xFFB39DD8),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _processedImage == null
-              ? Image.file(File(widget.imagePath), height: 300)
-              : Image.file(_processedImage!, height: 300),
-          const SizedBox(height: 20),
-          const Text('Brightness', style: TextStyle(fontSize: 18)),
-          Slider(
-            min: -100,
-            max: 100,
-            value: _brightness,
-            onChanged: (value) {
-              setState(() {
-                _brightness = value;
-              });
-              _adjustBrightness(); // Adjust brightness on slider change
-            },
-          ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        height: 50,
-        color: Colors.purple, // Purple bar at the bottom
-        child: Center(
-          child: Text(
-            'InstaRefine',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ),
-      ),
+      body: editedImage == null
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                Expanded(
+                  child: Image.memory(
+                    Uint8List.fromList(img.encodePng(editedImage!)),
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                Slider(
+                  value: brightnessValue,
+                  min: -100.0,
+                  max: 100.0,
+                  divisions: 200, // Optional: For better granularity
+                  onChanged: (value) {
+                    setState(() {
+                      brightnessValue = value; // Update the slider value immediately
+                    });
+
+                    // Debounce the image processing
+                    debounceTimer?.cancel();
+                    debounceTimer = Timer(Duration(milliseconds: 100), () {
+                      setState(() {
+                        editedImage = _adjustBrightness(originalImage, brightnessValue);
+                      });
+                    });
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ElevatedButton(
+                    onPressed: _saveImage,
+                    child: const Text("Save and Return"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFADD8E6),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
