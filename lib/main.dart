@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     // Navigate to HomeScreen after 8 seconds
-    Timer(Duration(seconds: 8), () {
+    Timer(const Duration(seconds: 8), () {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
@@ -56,6 +56,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
 
 class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

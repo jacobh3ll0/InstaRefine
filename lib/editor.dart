@@ -40,7 +40,7 @@ class EditorScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => BrightnessEditor(imagePath: imagePath),
+                      builder: (context) => BrightnessScreen(imagePath: imagePath),
                     ),
                   );
                 },
@@ -51,7 +51,7 @@ class EditorScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ContrastEditor(imagePath: imagePath),
+                      builder: (context) => ContrastScreen(imagePath: imagePath),
                     ),
                   );
                 },
@@ -62,7 +62,7 @@ class EditorScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => FiltersEditor(imagePath: imagePath),
+                      builder: (context) => FilterScreen(imagePath: imagePath),
                     ),
                   );
                 },
