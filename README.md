@@ -1,10 +1,11 @@
 # Android Image Editor - “InstaRefine”
 
 **InstaRefine** is a mobile image editing application developed for Android that allows users to enhance and manipulate their images using various tools like brightness adjustment, contrast enhancement, filters (including grayscale, sepia, and more), and image cropping. It provides a simple and intuitive interface for users to refine their images quickly and efficiently.
+![logo](https://github.com/user-attachments/assets/411925cf-c2a8-4b83-9d63-a7ac15f21e4b)
 
 ## Developers
-Eisha Rizvi (100782325) - eisha.rizvi@ontariotechu.net
-Jacob Rempel (100823181) - jacob.rempel@ontariotechu.net
+- Eisha Rizvi (100782325) - eisha.rizvi@ontariotechu.net
+- Jacob Rempel (100823181) - jacob.rempel@ontariotechu.net
 
 ## Features
 
@@ -55,18 +56,18 @@ To install and run this project locally, follow these steps:
    ```
 
 2. Navigate to the project directory:
-```bash
-cd insta-refine
-```
+   ```bash
+   cd insta-refine
+   ```
 
 4. Install the dependencies:
-```bash
-flutter pub get
-```
+   ```bash
+   flutter pub get
+   ```
 
 6. Run the app:
-```bash
-flutter run
-```
+   ```bash
+   flutter run
+   ```
 
 Make sure you have Flutter installed and set up on your machine. If not, follow the instructions on the official Flutter website to set up Flutter.
