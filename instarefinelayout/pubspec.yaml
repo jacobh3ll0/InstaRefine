@@ -31,8 +31,9 @@ dependencies:
   flutter:
     sdk: flutter
   image: ^3.0.1  # For image manipulation
-  image_picker: ^0.8.5  # For loading images
+  image_picker: ^1.1.2  # For loading images
   path_provider: ^2.0.11
+  image_cropper_plus: ^6.0.2
 
 
 

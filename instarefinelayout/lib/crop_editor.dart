@@ -1,45 +1,54 @@
-import 'dart:io';
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:image_cropper_plus/image_cropper_plus.dart';  // Import the correct package
+import 'dart:io';
 
-class ContrastEditor extends StatefulWidget {
+class CropScreen extends StatefulWidget {
   final String imagePath;
 
-  const ContrastEditor({super.key, required this.imagePath});
+  CropScreen({required this.imagePath});
 
   @override
-  _ContrastEditorState createState() => _ContrastEditorState();
+  _CropScreenState createState() => _CropScreenState();
 }
 
-class _ContrastEditorState extends State<ContrastEditor> {
-  double _contrast = 1.0; // Initial contrast value
-  File? _processedImage;
+class _CropScreenState extends State<CropScreen> {
+  late File imageFile;
 
-  Future<void> _adjustContrast() async {
-    try {
-      final imageBytes = await File(widget.imagePath).readAsBytes();
+  @override
+  void initState() {
+    super.initState();
+    imageFile = File(widget.imagePath);
+  }
 
-      final response = await http.post(
-        Uri.parse('YOUR_API_URL_HERE/adjustContrast'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'image': base64Encode(imageBytes),
-          'contrast': _contrast,
-        }),
-      );
+  Future<void> _cropImage() async {
+    final croppedFile = await ImageCropper().cropImage(  // Correct usage of ImageCropper()
+      sourcePath: widget.imagePath,
+      aspectRatioPresets: [
+        CropAspectRatioPreset.square,
+        CropAspectRatioPreset.ratio3x2,
+        CropAspectRatioPreset.ratio4x3,
+        CropAspectRatioPreset.ratio16x9
+      ],
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Crop Image',
+          toolbarColor: Colors.deepOrange,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.square,
+          lockAspectRatio: false,
+        ),
+        IOSUiSettings(
+          minimumAspectRatio: 1.0,
+          aspectRatioLockEnabled: false,
+          resetAspectRatioEnabled: true,
+        ),
+      ],
+    );
 
-      if (response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        final processedImagePath = result['imagePath'];
-        setState(() {
-          _processedImage = File(processedImagePath);
-        });
-      } else {
-        print('Error: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error adjusting contrast: $e');
+    if (croppedFile != null) {
+      setState(() {
+        imageFile = File(croppedFile.path); // Update the image with the cropped one
+      });
     }
   }
 
@@ -47,44 +56,39 @@ class _ContrastEditorState extends State<ContrastEditor> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Contrast Adjust"),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context); // Go back to the previous screen
-          },
-        ),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _processedImage == null
-              ? Image.file(File(widget.imagePath), height: 300)
-              : Image.file(_processedImage!, height: 300),
-          const SizedBox(height: 20),
-          const Text('Contrast', style: TextStyle(fontSize: 18)),
-          Slider(
-            min: 0.0,
-            max: 2.0,
-            value: _contrast,
-            onChanged: (value) {
-              setState(() {
-                _contrast = value;
-              });
-              _adjustContrast(); // Adjust contrast on slider change
+        title: const Text('Crop Image'),
+        backgroundColor: const Color(0xFFB39DD8),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: () {
+              // Implement save functionality here
             },
           ),
         ],
       ),
-      bottomNavigationBar: Container(
-        height: 50,
-        color: Colors.purple, // Purple bar at the bottom
-        child: Center(
-          child: Text(
-            'InstaRefine',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      body: Column(
+        children: [
+          Expanded(
+            child: imageFile.existsSync()
+                ? Image.file(imageFile)  // Show the updated cropped image
+                : const Center(child: CircularProgressIndicator()),
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: _cropImage,
+              child: const Text('Crop Image'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFADD8E6),
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,91 +1,134 @@
 import 'dart:io';
-import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:image/image.dart' as img;
+import 'dart:async';
+import 'package:path_provider/path_provider.dart';
 
-class ContrastEditor extends StatefulWidget {
+class ContrastScreen extends StatefulWidget {
   final String imagePath;
 
-  const ContrastEditor({super.key, required this.imagePath});
+  ContrastScreen({required this.imagePath});
 
   @override
-  _ContrastEditorState createState() => _ContrastEditorState();
+  _ContrastScreenState createState() => _ContrastScreenState();
 }
 
-class _ContrastEditorState extends State<ContrastEditor> {
-  double _contrast = 1.0; // Initial contrast value
-  File? _processedImage;
+class _ContrastScreenState extends State<ContrastScreen> {
+  late img.Image originalImage;
+  img.Image? editedImage;
+  double contrastValue = 1.0; // Default value for no contrast change
+  Timer? debounceTimer;
 
-  Future<void> _adjustContrast() async {
-    try {
-      final imageBytes = await File(widget.imagePath).readAsBytes();
+  @override
+  void initState() {
+    super.initState();
+    _loadImage();
+  }
 
-      final response = await http.post(
-        Uri.parse('YOUR_API_URL_HERE/adjustContrast'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'image': base64Encode(imageBytes),
-          'contrast': _contrast,
-        }),
-      );
+  /// Load the image using the `image` package
+  Future<void> _loadImage() async {
+    final imageBytes = await File(widget.imagePath).readAsBytes();
+    setState(() {
+      originalImage = img.decodeImage(imageBytes)!;
+      editedImage = originalImage.clone();
+    });
+  }
 
-      if (response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        final processedImagePath = result['imagePath'];
-        setState(() {
-          _processedImage = File(processedImagePath);
-        });
-      } else {
-        print('Error: ${response.statusCode}');
+  /// Adjust the contrast of the image
+  img.Image _adjustContrast(img.Image image, double contrastFactor) {
+    final adjustedImage = img.Image.from(image);
+    for (int y = 0; y < adjustedImage.height; y++) {
+      for (int x = 0; x < adjustedImage.width; x++) {
+        final pixel = adjustedImage.getPixel(x, y);
+
+        // Extract RGB channels
+        final r = img.getRed(pixel);
+        final g = img.getGreen(pixel);
+        final b = img.getBlue(pixel);
+
+        // Apply contrast formula
+        final newR = ((r - 128) * contrastFactor + 128).clamp(0, 255).toInt();
+        final newG = ((g - 128) * contrastFactor + 128).clamp(0, 255).toInt();
+        final newB = ((b - 128) * contrastFactor + 128).clamp(0, 255).toInt();
+
+        // Set new pixel with adjusted contrast
+        adjustedImage.setPixel(x, y, img.getColor(newR, newG, newB));
       }
-    } catch (e) {
-      print('Error adjusting contrast: $e');
     }
+    return adjustedImage;
+  }
+
+  /// Save the modified image to a temporary file
+  Future<void> _saveImage() async {
+    if (editedImage == null) return;
+
+    final directory = await getTemporaryDirectory();
+    final newPath = '${directory.path}/edited_image.png';
+
+    // Save the edited image
+    final editedImageBytes = img.encodePng(editedImage!);
+    final file = File(newPath);
+    await file.writeAsBytes(editedImageBytes);
+
+    // Return to the previous screen with the new image path
+    Navigator.pop(context, newPath);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFE8E6F5),
       appBar: AppBar(
-        title: const Text("Contrast Adjust"),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context); // Go back to the previous screen
-          },
-        ),
+        title: const Text('Adjust Contrast'),
+        backgroundColor: const Color(0xFFB39DD8),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _processedImage == null
-              ? Image.file(File(widget.imagePath), height: 300)
-              : Image.file(_processedImage!, height: 300),
-          const SizedBox(height: 20),
-          const Text('Contrast', style: TextStyle(fontSize: 18)),
-          Slider(
-            min: 0.0,
-            max: 2.0,
-            value: _contrast,
-            onChanged: (value) {
-              setState(() {
-                _contrast = value;
-              });
-              _adjustContrast(); // Adjust contrast on slider change
-            },
-          ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        height: 50,
-        color: Colors.purple, // Purple bar at the bottom
-        child: Center(
-          child: Text(
-            'InstaRefine',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ),
-      ),
+      body: editedImage == null
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                Expanded(
+                  child: Image.memory(
+                    Uint8List.fromList(img.encodePng(editedImage!)),
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                Slider(
+                  value: contrastValue,
+                  min: 0.5, // Min contrast value (reduce contrast)
+                  max: 2.0, // Max contrast value (increase contrast)
+                  divisions: 30, // Optional: For better granularity
+                  label: "Contrast: ${contrastValue.toStringAsFixed(1)}",
+                  onChanged: (value) {
+                    setState(() {
+                      contrastValue = value; // Update the slider value immediately
+                    });
+
+                    // Debounce the image processing
+                    debounceTimer?.cancel();
+                    debounceTimer = Timer(Duration(milliseconds: 100), () {
+                      setState(() {
+                        editedImage = _adjustContrast(originalImage, contrastValue);
+                      });
+                    });
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: ElevatedButton(
+                    onPressed: _saveImage,
+                    child: const Text("Save and Return"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFADD8E6),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
