@@ -1,13 +1,16 @@
-import 'dart:developer';
-
+//our files
 import 'brightness_editor.dart';
 import 'contrast_editor.dart';
 import 'filters_editor.dart';
 import 'crop_editor.dart';
+
+//flutter packages
+import 'dart:developer'; //log()
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:gal/gal.dart';
 
 void main() {
   runApp(MyApp());
@@ -310,8 +313,17 @@ class _EditScreenState extends State<EditScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.save),
-            onPressed: () {
-              // Implement save functionality here
+            onPressed: () async {
+              // Save Image with try-catch
+              try {
+                await Gal.putImage(imagePath);
+                if(!context.mounted) {return;}
+                _showSnackBar(context, "Image saved to gallery");
+              } on GalException catch (e) {
+                log(e.type.message);
+                if(!context.mounted) {return;}
+                _showSnackBar(context, e.type.message);
+              }
             },
           ),
         ],
@@ -418,5 +430,10 @@ class _EditScreenState extends State<EditScreen> {
         ],
       ),
     );
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context) // show snack bar
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 }
