@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -7,8 +8,9 @@ import 'package:path_provider/path_provider.dart';
 
 class ContrastScreen extends StatefulWidget {
   final String imagePath;
+  final int stackLength;
 
-  ContrastScreen({required this.imagePath});
+  ContrastScreen({required this.imagePath, required this.stackLength});
 
   @override
   _ContrastScreenState createState() => _ContrastScreenState();
@@ -64,11 +66,12 @@ class _ContrastScreenState extends State<ContrastScreen> {
     if (editedImage == null) return;
 
     final directory = await getTemporaryDirectory();
-    final newPath = '${directory.path}/edited_image.png';
+    final newPath = '${directory.path}/edited_image${widget.stackLength}.png';
 
     // Save the edited image
     final editedImageBytes = img.encodePng(editedImage!);
     final file = File(newPath);
+    imageCache.clear(); //deletes the cached image because file.writeAsBytes won't overwrite it
     await file.writeAsBytes(editedImageBytes);
 
     // Return to the previous screen with the new image path

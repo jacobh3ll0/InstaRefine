@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'brightness_editor.dart';
 import 'contrast_editor.dart';
 import 'filters_editor.dart';
@@ -31,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     // Navigate to HomeScreen after 8 seconds
-    Timer(const Duration(seconds: 8), () {
+    Timer(const Duration(seconds: 1), () {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
@@ -240,19 +242,37 @@ class _EditScreenState extends State<EditScreen> {
   late String imagePath; // To store the current image path
   late File imageFile;   // To store the image file based on the path
 
+  // redo functionality
+  late int currentIndex; // To store the current image being displayed
+  late List<String> redoStack = [];
+
   @override
   void initState() {
     super.initState();
+    currentIndex = 0;
+    redoStack.add(widget.imagePath);
     imagePath = widget.imagePath;
     imageFile = File(imagePath); // Initialize the image file based on the path
   }
 
   // Function to reload the image path when returning from other screens
   void _reloadImage(String newPath) {
+
     setState(() {
       imagePath = newPath;   // Update the image path with the latest one
       imageFile = File(imagePath); // Reload the image file
     });
+  }
+
+  // Function to handle redo / undo updates, should be called after a Navigator.pop()
+  void _updateUndo(String newPath) {
+    //delete everything after current index
+    // if(currentIndex != redoStack.length){
+    redoStack.removeRange(currentIndex + 1, redoStack.length);
+    // }
+
+    redoStack.add(newPath);
+    currentIndex = redoStack.length - 1;
   }
 
   @override
@@ -266,13 +286,26 @@ class _EditScreenState extends State<EditScreen> {
           IconButton(
             icon: const Icon(Icons.undo),
             onPressed: () {
-              // Implement undo functionality here
+              setState(() {
+                if((currentIndex - 1) >= 0) {
+                  currentIndex--;
+                  _reloadImage(redoStack[currentIndex]);
+                  log("undid: new image: $imagePath");
+                  log("list: $redoStack");
+                }
+              });
             },
           ),
           IconButton(
             icon: const Icon(Icons.redo),
             onPressed: () {
-              // Implement redo functionality here
+              setState(() {
+                if((currentIndex + 1) < redoStack.length) {
+                  currentIndex++;
+                  _reloadImage(redoStack[currentIndex]);
+                  log("redid: new image; $imagePath");
+                }
+              });
             },
           ),
           IconButton(
@@ -298,14 +331,16 @@ class _EditScreenState extends State<EditScreen> {
                   IconButton(
                     icon: const Icon(Icons.brightness_6),
                     onPressed: () async {
+                      redoStack.removeRange(currentIndex + 1, redoStack.length); //clears the stack past currentIndex
                       final newPath = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => BrightnessScreen(imagePath: imagePath),
+                          builder: (context) => BrightnessScreen(imagePath: imagePath, stackLength: redoStack.length,),
                         ),
                       );
                       if (newPath != null) {
                         _reloadImage(newPath); // Reload image after brightness adjustment
+                        _updateUndo(newPath);
                       }
                     },
                   ),
@@ -317,14 +352,17 @@ class _EditScreenState extends State<EditScreen> {
                   IconButton(
                     icon: const Icon(Icons.contrast),
                     onPressed: () async {
+                      redoStack.removeRange(currentIndex + 1, redoStack.length); //clears the stack past currentIndex
                       final newPath = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ContrastScreen(imagePath: imagePath),
+                          builder: (context) => ContrastScreen(imagePath: imagePath, stackLength: redoStack.length),
                         ),
                       );
+
                       if (newPath != null) {
                         _reloadImage(newPath); // Reload image after contrast adjustment
+                        _updateUndo(newPath);
                       }
                     },
                   ),
@@ -336,14 +374,16 @@ class _EditScreenState extends State<EditScreen> {
                   IconButton(
                     icon: const Icon(Icons.filter),
                     onPressed: () async {
+                      redoStack.removeRange(currentIndex + 1, redoStack.length); //clears the stack past currentIndex
                       final newPath = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => FilterScreen(imagePath: imagePath),
+                          builder: (context) => FilterScreen(imagePath: imagePath, stackLength: redoStack.length,),
                         ),
                       );
                       if (newPath != null) {
                         _reloadImage(newPath); // Reload image after applying filter (e.g., grayscale)
+                        _updateUndo(newPath);
                       }
                     },
                   ),
@@ -365,6 +405,7 @@ class _EditScreenState extends State<EditScreen> {
                       );
                       if (croppedImage != null) {
                         _reloadImage(croppedImage); // Reload the cropped image
+                        _updateUndo(croppedImage);
                       }
                     },
                   ),

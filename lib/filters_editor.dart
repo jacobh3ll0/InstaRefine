@@ -7,8 +7,9 @@ import 'dart:async';
 
 class FilterScreen extends StatefulWidget {
   final String imagePath;
+  final int stackLength;
 
-  FilterScreen({required this.imagePath});
+  FilterScreen({required this.imagePath, required this.stackLength});
 
   @override
   _FilterScreenState createState() => _FilterScreenState();
@@ -96,11 +97,13 @@ class _FilterScreenState extends State<FilterScreen> {
     if (editedImage == null) return;
 
     final directory = await getTemporaryDirectory();
-    final newPath = '${directory.path}/edited_image.png';
+    // final newPath = '${directory.path}/edited_image.png';
+    final newPath = '${directory.path}/edited_image${widget.stackLength}.png';
 
     // Save the edited image
     final editedImageBytes = img.encodePng(editedImage!);
     final file = File(newPath);
+    imageCache.clear(); //deletes the cached image because file.writeAsBytes won't overwrite it
     await file.writeAsBytes(editedImageBytes);
 
     // Return to the previous screen with the new image path
