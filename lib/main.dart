@@ -293,8 +293,6 @@ class _EditScreenState extends State<EditScreen> {
                 if((currentIndex - 1) >= 0) {
                   currentIndex--;
                   _reloadImage(redoStack[currentIndex]);
-                  log("undid: new image: $imagePath");
-                  log("list: $redoStack");
                 }
               });
             },
@@ -306,7 +304,6 @@ class _EditScreenState extends State<EditScreen> {
                 if((currentIndex + 1) < redoStack.length) {
                   currentIndex++;
                   _reloadImage(redoStack[currentIndex]);
-                  log("redid: new image; $imagePath");
                 }
               });
             },
@@ -412,7 +409,7 @@ class _EditScreenState extends State<EditScreen> {
                       final croppedImage = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => CropScreen(imagePath: imagePath),
+                          builder: (context) => CropScreen(imagePath: imagePath, stackLength: redoStack.length,),
                         ),
                       );
                       if (croppedImage != null) {
