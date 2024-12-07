@@ -52,7 +52,7 @@ To install and run this project locally, follow these steps:
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/InstaRefine.git
+   git clone https://github.com/jacobh3ll0/InstaRefine
    ```
 
 2. Navigate to the project directory:
