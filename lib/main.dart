@@ -1,4 +1,6 @@
 //our files
+import 'package:instarefine/text_editor.dart';
+
 import 'brightness_editor.dart';
 import 'contrast_editor.dart';
 import 'filters_editor.dart';
@@ -419,8 +421,31 @@ class _EditScreenState extends State<EditScreen> {
                     },
                   ),
                   const Text("Crop"),
+                  ],
+              ),
+              Column(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.text_fields),
+                    onPressed: () async {
+                      // Implement crop functionality here
+                      // Open the cropping screen
+                      final croppedImage = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TextScreen(imagePath: imagePath, stackLength: redoStack.length,),
+                        ),
+                      );
+                      if (croppedImage != null) {
+                        _reloadImage(croppedImage); // Reload the cropped image
+                        _updateUndo(croppedImage);
+                      }
+                    },
+                  ),
+                  Text("Text"),
                 ],
               ),
+
             ],
           ),
           const SizedBox(height: 16),
