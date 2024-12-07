@@ -1,4 +1,6 @@
 //our files
+import 'package:instarefine/drawing_editor.dart';
+
 import 'brightness_editor.dart';
 import 'contrast_editor.dart';
 import 'filters_editor.dart';
@@ -293,6 +295,8 @@ class _EditScreenState extends State<EditScreen> {
                 if((currentIndex - 1) >= 0) {
                   currentIndex--;
                   _reloadImage(redoStack[currentIndex]);
+                  log("undid: new image: $imagePath");
+                  log("list: $redoStack");
                 }
               });
             },
@@ -304,6 +308,7 @@ class _EditScreenState extends State<EditScreen> {
                 if((currentIndex + 1) < redoStack.length) {
                   currentIndex++;
                   _reloadImage(redoStack[currentIndex]);
+                  log("redid: new image; $imagePath");
                 }
               });
             },
@@ -424,6 +429,24 @@ class _EditScreenState extends State<EditScreen> {
             ],
           ),
           const SizedBox(height: 16),
+          IconButton(
+            icon: const Icon(Icons.draw_outlined),
+            onPressed: () async {
+              // Implement crop functionality here
+              // Open the cropping screen
+              final croppedImage = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DrawScreen(imagePath: imagePath, stackLength: redoStack.length,),
+                ),
+              );
+              if (croppedImage != null) {
+                _reloadImage(croppedImage); // Reload the cropped image
+                _updateUndo(croppedImage);
+              }
+            },
+          ),
+          const Text("Draw"),
         ],
       ),
     );
