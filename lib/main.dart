@@ -1,6 +1,6 @@
 //our files
-import 'package:instarefine/text_editor.dart';
-
+import 'text_editor.dart';
+import 'explorefeatures.dart';
 import 'brightness_editor.dart';
 import 'contrast_editor.dart';
 import 'filters_editor.dart';
@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:gal/gal.dart';
+import 'dart:math' hide log;
 
 void main() {
   runApp(MyApp());
@@ -38,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     // Navigate to HomeScreen after 8 seconds
-    Timer(const Duration(seconds: 1), () {
+    Timer(const Duration(seconds: 8), () {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
@@ -67,10 +68,32 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    // Random Quotes
+    final List<String> quotes = [
+      "Turn your moments into masterpieces with InstaRefine.",
+      "Unleash your creativity, one image at a time.",
+      "Edit. Enhance. Inspire. Welcome to InstaRefine.",
+      "Transform your photos, transform your world.",
+      "Bring your vision to life with every edit.",
+      "Where creativity meets precision in every pixel.",
+      "Create, edit, and share your world in stunning detail.",
+      "The power to refine your memories is in your hands.",
+      "Design your story, frame by frame.",
+      "Edit like a pro, even if you're a beginner.",
+      "Every photo tells a story; make yours unforgettable.",
+      "From ordinary to extraordinary, refine your photos effortlessly.",
+      "Capture the moment, enhance the experience.",
+      "Your creativity, your rules, InstaRefine makes it possible.",
+      "A new world of photo editing is at your fingertips.",
+      "Refine your photos. Redefine your perspective.",
+    ];
+    final String randomQuote = quotes[Random().nextInt(quotes.length)];
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('HOME'),
-        backgroundColor: const Color(0xFFB39DD8), // Purple background color
+        title: const Text('Home'),
+        backgroundColor: const Color(0xFFB39DD8),
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
@@ -86,56 +109,81 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      backgroundColor: const Color(0xFFE8E6F5), // Matches the background color
+      backgroundColor: const Color(0xFFE8E6F5),
       body: Stack(
         children: [
+          // Background decorations
+          Positioned(
+            top: -50,
+            left: -50,
+            child: Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFFB39DD8).withOpacity(0.4),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -80,
+            right: -80,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFFB39DD8).withOpacity(0.6),
+              ),
+            ),
+          ),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const Text(
+                  'Welcome to InstaRefine!',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Your all-in-one image editing companion',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Display a motivational quote
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text(
+                    randomQuote,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                // Logo
                 Image.asset(
-                  'assets/logo.png', // Replace with your asset's path
-                  width: 400,
-                  height: 400,
+                  'assets/logo.png',
+                  width: 300,
+                  height: 300,
                 ),
-                SizedBox(height: 5),
-                ElevatedButton(
-                  onPressed: () async {
-                    final ImagePicker picker = ImagePicker();
-                    final XFile? image =
-                        await picker.pickImage(source: ImageSource.gallery);
-
-                    if (image != null) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              EditScreen(imagePath: image.path),
-                        ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFADD8E6), // Matches the button color
-                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'LOAD IMAGE',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
+                // Description of the app
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 32.0),
                   child: Text(
-                    'An easy-to-use mobile app for Android that allows users to edit, enhance, and manipulate images',
+                    'An easy-to-use mobile app for Android that allows users to edit, enhance, and manipulate images.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
@@ -143,12 +191,79 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                const SizedBox(height: 15),
+                // Buttons for actions
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        final ImagePicker picker = ImagePicker();
+                        final XFile? image =
+                            await picker.pickImage(source: ImageSource.gallery);
+
+                        if (image != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  EditScreen(imagePath: image.path),
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFADD8E6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'LOAD IMAGE',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ExploreFeaturesScreen(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFB39DD8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'EXPLORE',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
           // "InstaRefine" text at the bottom
-          Positioned(
-            bottom: 48, // Position above the purple bar
+          const Positioned(
+            bottom: 48,
             left: 0,
             right: 0,
             child: Center(
@@ -157,7 +272,7 @@ class HomeScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  fontFamily: 'Cursive', // Add appropriate font if required
+                  fontFamily: 'Cursive',
                   color: Colors.black,
                 ),
               ),
@@ -170,7 +285,7 @@ class HomeScreen extends StatelessWidget {
             right: 0,
             child: Container(
               height: 40,
-              color: const Color(0xFFB39DD8), // Matches the purple bar color
+              color: const Color(0xFFB39DD8),
             ),
           ),
         ],
@@ -178,6 +293,8 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
+
 
 // About Screen
 class AboutScreen extends StatelessWidget {
@@ -188,12 +305,13 @@ class AboutScreen extends StatelessWidget {
         title: const Text('About'),
         backgroundColor: const Color(0xFFB39DD8),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      backgroundColor: const Color(0xFFE8E6F5),
+      body: const Padding(
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'About the App',
               style: TextStyle(
                 fontSize: 24,
@@ -201,16 +319,16 @@ class AboutScreen extends StatelessWidget {
                 color: Colors.black,
               ),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'InstaRefine is an easy-to-use mobile app for Android that allows users to edit, enhance, and manipulate images. With tools like brightness adjustment, contrast enhancement, filters, and cropping, users can refine their photos with ease.',
+            SizedBox(height: 16),
+            Text(
+              'InstaRefine is a user-friendly mobile application designed to empower users to edit, enhance, and transform their images with ease. Whether you’re a casual photographer, a content creator, or simply someone who loves capturing moments, InstaRefine offers a suite of powerful tools to bring your vision to life. With features like quick filters, precise adjustments, and creative effects, the app ensures your photos always look their best. Our goal is to make image editing accessible, fun, and intuitive, because every picture tells a story, and we’re here to help you refine yours.',
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.black,
               ),
             ),
-            const SizedBox(height: 32),
-            const Text(
+            SizedBox(height: 32),
+            Text(
               'Developers:',
               style: TextStyle(
                 fontSize: 20,
@@ -218,8 +336,8 @@ class AboutScreen extends StatelessWidget {
                 color: Colors.black,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: 8),
+            Text(
               '• Eisha Rizvi\n• Jacob Rempel',
               style: TextStyle(
                 fontSize: 16,
@@ -342,7 +460,7 @@ class _EditScreenState extends State<EditScreen> {
                   IconButton(
                     icon: const Icon(Icons.brightness_6),
                     onPressed: () async {
-                      redoStack.removeRange(currentIndex + 1, redoStack.length); //clears the stack past currentIndex
+                      redoStack.removeRange(currentIndex + 1, redoStack.length); // clears the stack past currentIndex
                       final newPath = await Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -363,7 +481,7 @@ class _EditScreenState extends State<EditScreen> {
                   IconButton(
                     icon: const Icon(Icons.contrast),
                     onPressed: () async {
-                      redoStack.removeRange(currentIndex + 1, redoStack.length); //clears the stack past currentIndex
+                      redoStack.removeRange(currentIndex + 1, redoStack.length); // clears the stack past currentIndex
                       final newPath = await Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -385,7 +503,7 @@ class _EditScreenState extends State<EditScreen> {
                   IconButton(
                     icon: const Icon(Icons.filter),
                     onPressed: () async {
-                      redoStack.removeRange(currentIndex + 1, redoStack.length); //clears the stack past currentIndex
+                      redoStack.removeRange(currentIndex + 1, redoStack.length); // clears the stack past currentIndex
                       final newPath = await Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -393,7 +511,7 @@ class _EditScreenState extends State<EditScreen> {
                         ),
                       );
                       if (newPath != null) {
-                        _reloadImage(newPath); // Reload image after applying filter (e.g., grayscale)
+                        _reloadImage(newPath); // Reload image after applying filter
                         _updateUndo(newPath);
                       }
                     },
@@ -406,8 +524,6 @@ class _EditScreenState extends State<EditScreen> {
                   IconButton(
                     icon: const Icon(Icons.crop),
                     onPressed: () async {
-                      // Implement crop functionality here
-                      // Open the cropping screen
                       final croppedImage = await Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -428,8 +544,6 @@ class _EditScreenState extends State<EditScreen> {
                   IconButton(
                     icon: const Icon(Icons.text_fields),
                     onPressed: () async {
-                      // Implement crop functionality here
-                      // Open the cropping screen
                       final croppedImage = await Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -437,7 +551,7 @@ class _EditScreenState extends State<EditScreen> {
                         ),
                       );
                       if (croppedImage != null) {
-                        _reloadImage(croppedImage); // Reload the cropped image
+                        _reloadImage(croppedImage); // Reload the image with text
                         _updateUndo(croppedImage);
                       }
                     },

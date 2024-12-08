@@ -1,4 +1,4 @@
-import 'dart:developer';
+// Import Statements
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -71,7 +71,7 @@ class _ContrastScreenState extends State<ContrastScreen> {
     // Save the edited image
     final editedImageBytes = img.encodePng(editedImage!);
     final file = File(newPath);
-    imageCache.clear(); //deletes the cached image because file.writeAsBytes won't overwrite it
+    imageCache.clear();
     await file.writeAsBytes(editedImageBytes);
 
     // Return to the previous screen with the new image path
@@ -98,13 +98,13 @@ class _ContrastScreenState extends State<ContrastScreen> {
                 ),
                 Slider(
                   value: contrastValue,
-                  min: 0.5, // Min contrast value (reduce contrast)
-                  max: 2.0, // Max contrast value (increase contrast)
-                  divisions: 30, // Optional: For better granularity
+                  min: 0.5, // Min contrast value
+                  max: 2.0, // Max contrast value
+                  divisions: 30, //
                   label: "Contrast: ${contrastValue.toStringAsFixed(1)}",
                   onChanged: (value) {
                     setState(() {
-                      contrastValue = value; // Update the slider value immediately
+                      contrastValue = value; //
                     });
 
                     // Debounce the image processing

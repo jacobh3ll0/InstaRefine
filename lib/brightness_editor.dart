@@ -1,3 +1,4 @@
+// Import Statements
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -49,7 +50,7 @@ class _BrightnessScreenState extends State<BrightnessScreen> {
         final g = img.getGreen(pixel);
         final b = img.getBlue(pixel);
 
-        // Adjust brightness (value can be positive or negative)
+        // Adjust brightness
         final adjustedR = (r + value).clamp(0, 255).toInt();
         final adjustedG = (g + value).clamp(0, 255).toInt();
         final adjustedB = (b + value).clamp(0, 255).toInt();
@@ -66,12 +67,11 @@ class _BrightnessScreenState extends State<BrightnessScreen> {
 
     final directory = await getTemporaryDirectory();
     final newPath = '${directory.path}/edited_image${widget.stackLength}.png';
-    // final newPath = '${directory.path}/edited_image_${DateTime.now().millisecondsSinceEpoch}.png';
 
     // Save the edited image
     final editedImageBytes = img.encodePng(editedImage!);
     final file = File(newPath);
-    imageCache.clear(); //deletes the cached image because file.writeAsBytes won't overwrite it
+    imageCache.clear();
     await file.writeAsBytes(editedImageBytes);
 
     // Return to the previous screen with the new image path
@@ -100,10 +100,10 @@ class _BrightnessScreenState extends State<BrightnessScreen> {
                   value: brightnessValue,
                   min: -100.0,
                   max: 100.0,
-                  divisions: 200, // Optional: For better granularity
+                  divisions: 200,
                   onChanged: (value) {
                     setState(() {
-                      brightnessValue = value; // Update the slider value immediately
+                      brightnessValue = value;
                     });
 
                     // Debounce the image processing

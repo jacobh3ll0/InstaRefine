@@ -1,3 +1,4 @@
+// Import Statements
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ class _FilterScreenState extends State<FilterScreen> {
     final imageBytes = await File(widget.imagePath).readAsBytes();
     setState(() {
       originalImage = img.decodeImage(imageBytes)!;
-      editedImage = originalImage.clone(); // Start with the original image
+      editedImage = originalImage.clone();
     });
   }
 
@@ -75,9 +76,9 @@ class _FilterScreenState extends State<FilterScreen> {
     return sepiaImage;
   }
 
-  /// Apply grayscale on top of sepia (or vice versa)
+  /// Apply grayscale on top of sepia or vice versa
   void _applyFilters(bool isGrayscale, bool isSepia) {
-    img.Image currentImage = originalImage.clone(); // Start with the original image
+    img.Image currentImage = originalImage.clone();
 
     // Apply filters sequentially based on user choices
     if (isGrayscale) {
@@ -97,13 +98,12 @@ class _FilterScreenState extends State<FilterScreen> {
     if (editedImage == null) return;
 
     final directory = await getTemporaryDirectory();
-    // final newPath = '${directory.path}/edited_image.png';
     final newPath = '${directory.path}/edited_image${widget.stackLength}.png';
 
     // Save the edited image
     final editedImageBytes = img.encodePng(editedImage!);
     final file = File(newPath);
-    imageCache.clear(); //deletes the cached image because file.writeAsBytes won't overwrite it
+    imageCache.clear();
     await file.writeAsBytes(editedImageBytes);
 
     // Return to the previous screen with the new image path
@@ -158,7 +158,7 @@ class _FilterScreenState extends State<FilterScreen> {
                       ElevatedButton(
                         onPressed: () {
                           // Apply both grayscale and sepia
-                          _applyFilters(true, true);  // Grayscale on top of Sepia
+                          _applyFilters(true, true);
                         },
                         child: const Text("Grayscale + Sepia"),
                         style: ElevatedButton.styleFrom(

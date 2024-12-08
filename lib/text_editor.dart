@@ -109,6 +109,7 @@ Widget _buildImage() {
         children: [
           TextField(
             controller: _controller,
+            style: TextStyle(fontSize: 24),
             decoration: InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Enter text here',
@@ -126,8 +127,8 @@ Widget _buildImage() {
 
   void _saveText() {
 
-    int x = 0;
-    int y = 0;
+    int x = 10;
+    int y = 10;
     String text = _controller.text;
 
     setState(() {
