@@ -7,8 +7,8 @@
 
 
 ## Developers
-- Eisha Rizvi (100782325) - eisha.rizvi@ontariotechu.net
-- Jacob Rempel (100823181) - jacob.rempel@ontariotechu.net
+- Eisha Rizvi
+- Jacob Rempel
 
 ## Features
 
